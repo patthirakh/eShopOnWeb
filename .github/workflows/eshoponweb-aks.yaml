@@ -5,6 +5,8 @@ env:
   ACR_LOGIN_SERVER: aistraining.azurecr.io
   TAG_NAME: eshoponweb-021:1.0.0
   # IMAGE_NAME: ${{ vars.ACR_LOGIN_SERVER }}/${{ vars.TAG_NAME }}
+  RESOURCE_GROUP: rg-021
+  CLUSTER_NAME: aks-demo
 
 jobs:
   build-container:
@@ -25,4 +27,20 @@ jobs:
         run: |
           docker build -f src/Web/Dockerfile -t ${{ env.ACR_LOGIN_SERVER }}/${{ env.TAG_NAME }} .
           docker push ${{ env.ACR_LOGIN_SERVER }}/${{ env.TAG_NAME }}
+          
+  deploy-to-aks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - uses: Azure/k8s-set-context@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          resource-group: ${{ env.RESOURCE_GROUP }}
+          cluster-name: ${{ env.CLUSTER_NAME }}
+      - uses: azure/k8s-deploy@v1
+        with:
+          manifests: |
+            .k8s/deployment.yaml
+            .k8s/service.yaml
+          images: ${{ env.ACR_LOGIN_SERVER }}/${{ env.TAG_NAME }}
           
