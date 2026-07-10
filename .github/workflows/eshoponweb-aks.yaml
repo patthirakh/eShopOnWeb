@@ -17,9 +17,9 @@ jobs:
       - name: ACR Login
         uses: docker/login-action@v4.4.0
         with:
-          login-server: ${{ env.ACR_LOGIN_SERVER }}
+          registry: ${{ env.ACR_LOGIN_SERVER }}
           username: ${{ secrets.ACR_USERNAME }}
-          password: ${{ secrets.ARC_PASSWORD }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Build and Push Image
         run: |
